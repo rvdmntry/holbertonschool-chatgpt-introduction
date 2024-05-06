@@ -12,7 +12,6 @@ class Minesweeper:
 		self.mines = set(random.sample(range(width * height), mines))
 		self.field = [[' ' for _ in range(width)] for _ in range(height)]
 		self.revealed = [[False for _ in range(width)] for _ in range(height)]
-		self.non_mine_count = width * height - mines  # Total non-mine cells
 
 	def print_board(self, reveal=False):
 		clear_screen()
@@ -43,9 +42,7 @@ class Minesweeper:
 	def reveal(self, x, y):
 		if (y * self.width + x) in self.mines:
 			return False
-		if not self.revealed[y][x]:
-			self.revealed[y][x] = True
-			self.non_mine_count -= 1  # Decrement count of unrevealed non-mine cells
+		self.revealed[y][x] = True
 		if self.count_mines_nearby(x, y) == 0:
 			for dx in [-1, 0, 1]:
 				for dy in [-1, 0, 1]:
@@ -54,21 +51,43 @@ class Minesweeper:
 						self.reveal(nx, ny)
 		return True
 
-	def play(self):
+	def check_win(self):
+		for y in range(self.height):
+			for x in range(self.width):
+				if (y * self.width + x) not in self.mines and not self.revealed[y][x]:
+					return False
+		return True
+
+	def get_valid_coordinates(self):
 		while True:
-			self.print_board()
-			if self.non_mine_count == 0:
-				print("Congratulations! You've won the game.")
-				break
 			try:
 				x = int(input("Enter x coordinate: "))
 				y = int(input("Enter y coordinate: "))
-				if not self.reveal(x, y):
-					self.print_board(reveal=True)
-					print("Game Over! You hit a mine.")
-					break
+				if 0 <= x < self.width and 0 <= y < self.height:
+					return x, y
+				else:
+					print("Coordinates out of bounds. Try again.")
 			except ValueError:
 				print("Invalid input. Please enter numbers only.")
+
+	def ask_replay(self):
+		answer = input("Do you want to play again? (yes/no): ").lower()
+		return answer == 'yes'
+
+	def play(self):
+		while True:
+			self.print_board()
+			if self.check_win():
+				self.print_board(reveal=True)
+				print("Congratulations! You've won the game.")
+				if not self.ask_replay():
+					break
+			x, y = self.get_valid_coordinates()
+			if not self.reveal(x, y):
+				self.print_board(reveal=True)
+				print("Game Over! You hit a mine.")
+				if not self.ask_replay():
+					break
 
 if __name__ == "__main__":
 	game = Minesweeper()
