@@ -1,9 +1,20 @@
 #!/usr/bin/python3
 import sys
 
-# Check if any arguments are provided
-if len(sys.argv) == 1:
-	print("No arguments provided.")
-else:
-	for index, arg in enumerate(sys.argv):
-		print(arg)
+def factorial(n):
+    """
+    Calculate the factorial of a given number.
+
+    Parameters:
+    - n (int): The number whose factorial is to be calculated.
+
+    Returns:
+    - int: The factorial of the given number.
+    """
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+
+f = factorial(int(sys.argv[1]))
+print(f)
